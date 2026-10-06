@@ -1,39 +1,33 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
 
 export async function POST(request) {
   try {
     const { name, email, date, time, guests } = await request.json();
 
-    // Configuration de Nodemailer avec les paramètres iCloud
-    const transporter = nodemailer.createTransport({
-      host: 'smtp.mail.me.com',
-      port: 587,
-      secure: false, // true for 465, false for other ports
-      auth: {
-        user: 'achraf.boulali@icloud.com',
-        // Il faut générer un mot de passe d'application spécifique dans votre compte Apple
-        pass: process.env.EMAIL_APP_PASSWORD, 
+    // Utilisation de Web3Forms pour éviter les blocages SMTP d'Apple sur Vercel
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
+      body: JSON.stringify({
+        access_key: process.env.WEB3FORMS_ACCESS_KEY,
+        subject: `Nouvelle réservation : ${name} le ${date} à ${time}`,
+        from_name: "La Team C - Site Web",
+        Nom: name,
+        Email_Client: email,
+        Date: date,
+        Heure: time,
+        Couverts: guests,
+      }),
     });
 
-    // Options de l'email
-    const mailOptions = {
-      from: '"La Team C - Site Web" <achraf.boulali@icloud.com>', // L'adresse d'envoi (doit être l'adresse iCloud)
-      to: 'achraf.boulali@icloud.com', // L'adresse de réception
-      subject: `Nouvelle réservation : ${name} le ${date} à ${time}`,
-      html: `
-        <h2>Nouvelle demande de réservation</h2>
-        <p><strong>Nom :</strong> ${name}</p>
-        <p><strong>Email :</strong> ${email}</p>
-        <p><strong>Date :</strong> ${date}</p>
-        <p><strong>Heure :</strong> ${time}</p>
-        <p><strong>Nombre de couverts :</strong> ${guests}</p>
-      `,
-    };
+    const data = await response.json();
 
-    // Envoi de l'email
-    await transporter.sendMail(mailOptions);
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || "Erreur Web3Forms");
+    }
 
     return NextResponse.json({ message: "Réservation envoyée avec succès" }, { status: 200 });
 
