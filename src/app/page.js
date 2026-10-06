@@ -35,6 +35,7 @@ export default function Home() {
       guests: e.target.guests.value,
       name: e.target.name.value,
       email: e.target.email.value,
+      phone: e.target.phone.value,
     };
 
     const promise = async () => {
@@ -56,6 +57,7 @@ export default function Home() {
           from_name: "La Team C - Site Web",
           Nom: formData.name,
           Email_Client: formData.email,
+          Telephone: formData.phone,
           Date: formData.date,
           Heure: formData.time,
           Couverts: formData.guests,
@@ -498,10 +500,14 @@ export default function Home() {
                     <label className="text-sm font-medium text-gray-700">Nom</label>
                     <input name="name" type="text" placeholder="Votre nom" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">Email</label>
-                  <input name="email" type="email" placeholder="votre@email.com" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Email</label>
+                    <input name="email" type="email" placeholder="votre@email.com" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700">Téléphone</label>
+                    <input name="phone" type="tel" placeholder="06 00 00 00 00" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                  </div>
                 </div>
                 <button disabled={isSubmitting} type="submit" className="w-full bg-[#113622] text-white rounded-xl py-4 font-medium text-lg hover:bg-[#1a5133] transition-all relative overflow-hidden group disabled:opacity-80 disabled:cursor-not-allowed">
                   <span className="relative z-10 flex items-center justify-center gap-2">
