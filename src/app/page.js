@@ -38,10 +38,10 @@ export default function Home() {
     };
 
     const promise = async () => {
-      // Get the access key directly from the browser environment
-      const key = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
+      // Get the access key directly from the code (publicly safe)
+      const key = "8be25e75-fe2e-4a5a-9de4-f3b35140b993";
 
-      if (!key) throw new Error("Clé d'accès manquante (NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY)");
+      if (!key) throw new Error("Clé d'accès manquante");
 
       // Post directly from the browser to bypass Vercel server blocks
       const response = await fetch("https://api.web3forms.com/submit", {
