@@ -42,7 +42,10 @@ export default function Home() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(formData),
     }).then(async (res) => {
-      if (!res.ok) throw new Error('Erreur réseau');
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Erreur réseau');
+      }
       return res.json();
     });
 
@@ -53,9 +56,9 @@ export default function Home() {
         setIsSubmitting(false);
         return 'Réservation confirmée ! Vous allez recevoir un email.';
       },
-      error: () => {
+      error: (err) => {
         setIsSubmitting(false);
-        return 'Une erreur est survenue. Veuillez réessayer.';
+        return 'Erreur : ' + err.message;
       },
     });
   };
