@@ -1,4 +1,5 @@
 import { Inter, Playfair_Display } from "next/font/google";
+import { Toaster } from 'sonner';
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -14,6 +15,7 @@ export default function RootLayout({ children }) {
     <html lang="fr" className="scroll-smooth">
       <body className={`${inter.variable} ${playfair.variable} font-sans bg-[#FDFBF7] text-[#1A1A1A] antialiased selection:bg-[#c69c38] selection:text-white`}>
         {children}
+        <Toaster position="bottom-center" richColors theme="light" />
       </body>
     </html>
   );

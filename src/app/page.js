@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Clock, MapPin, Utensils, Phone, Mail, Menu, X, ArrowRight } from "lucide-react";
+import { Clock, MapPin, Utensils, Phone, Mail, Menu, X, ArrowRight, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [formStatus, setFormStatus] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { scrollYProgress, scrollY } = useScroll();
   const yBg = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
@@ -25,7 +26,8 @@ export default function Home() {
 
   const handleReservation = async (e) => {
     e.preventDefault();
-    setFormStatus("Envoi en cours...");
+    if (isSubmitting) return;
+    setIsSubmitting(true);
 
     const formData = {
       date: e.target.date.value,
@@ -35,24 +37,27 @@ export default function Home() {
       email: e.target.email.value,
     };
 
-    try {
-      const response = await fetch('/api/reservation', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      });
+    const promise = fetch('/api/reservation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    }).then(async (res) => {
+      if (!res.ok) throw new Error('Erreur réseau');
+      return res.json();
+    });
 
-      if (response.ok) {
-        setFormStatus("Merci ! Votre réservation a été envoyée par email.");
+    toast.promise(promise, {
+      loading: 'Envoi de votre réservation...',
+      success: () => {
         e.target.reset();
-      } else {
-        setFormStatus("Une erreur est survenue. Veuillez réessayer.");
-      }
-    } catch (error) {
-      setFormStatus("Erreur de connexion. Veuillez réessayer.");
-    }
-    
-    setTimeout(() => setFormStatus(""), 6000);
+        setIsSubmitting(false);
+        return 'Réservation confirmée ! Vous allez recevoir un email.';
+      },
+      error: () => {
+        setIsSubmitting(false);
+        return 'Une erreur est survenue. Veuillez réessayer.';
+      },
+    });
   };
 
   const navLinks = [
@@ -150,6 +155,7 @@ export default function Home() {
             src="/assets/hero_cafe_cantine_1791307689973.jpg"
             alt="La Team C Restaurant"
             fill
+            sizes="100vw"
             className="object-cover object-center"
             priority
           />
@@ -268,7 +274,7 @@ export default function Home() {
               animate={{ y: [0, -15, 0] }}
               className="absolute top-0 right-0 w-[75%] h-[80%] rounded-2xl overflow-hidden shadow-2xl z-10"
             >
-              <Image src="/assets/food_toast_1791307712491.jpg" alt="Toast Gourmet" fill className="object-cover" />
+              <Image src="/assets/food_toast_1791307712491.jpg" alt="Toast Gourmet" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             </motion.div>
             <motion.div 
               initial={{ opacity: 0, x: -50 }}
@@ -278,7 +284,7 @@ export default function Home() {
               animate={{ y: [0, 15, 0] }}
               className="absolute bottom-0 left-0 w-[60%] h-[60%] rounded-2xl overflow-hidden shadow-2xl border-8 border-[#FDFBF7] z-20"
             >
-              <Image src="/assets/cocktail_drink_1791307701327.jpg" alt="Cocktail" fill className="object-cover" />
+              <Image src="/assets/cocktail_drink_1791307701327.jpg" alt="Cocktail" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             </motion.div>
           </div>
         </div>
@@ -313,7 +319,7 @@ export default function Home() {
               >
                 <div className={`relative h-64 overflow-hidden ${!item.img && 'bg-gradient-to-br from-[#113622] to-[#1a5133]'}`}>
                   {item.img && (
-                    <Image src={item.img} alt={item.title} fill className="object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <Image src={item.img} alt={item.title} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-700 group-hover:scale-110" />
                   )}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm text-[#113622] font-playfair font-bold text-xl px-4 py-2 rounded-full shadow-lg">
                     {item.price}
@@ -379,7 +385,7 @@ export default function Home() {
           >
             <div className="relative w-72 h-72 md:w-96 md:h-96 rounded-full border border-dashed border-[#c69c38]/50 p-6 animate-[spin_20s_linear_infinite]">
               <div className="w-full h-full rounded-full overflow-hidden relative animate-[spin_20s_linear_infinite_reverse]">
-                <Image src="/assets/food_toast_1791307712491.jpg" alt="Event" fill className="object-cover opacity-80" />
+                <Image src="/assets/food_toast_1791307712491.jpg" alt="Event" fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover opacity-80" />
                 <div className="absolute inset-0 bg-[#113622]/60 flex flex-col items-center justify-center text-center p-6">
                   <h3 className="text-3xl font-playfair font-bold text-white mb-2">ESCAPE GAME</h3>
                   <p className="text-[#c69c38] italic font-playfair text-xl">Culinaire</p>
@@ -474,16 +480,19 @@ export default function Home() {
                   <label className="text-sm font-medium text-gray-700">Email</label>
                   <input name="email" type="email" placeholder="votre@email.com" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
                 </div>
-                <button type="submit" className="w-full bg-[#113622] text-white rounded-xl py-4 font-medium text-lg hover:bg-[#1a5133] transition-colors relative overflow-hidden group">
-                  <span className="relative z-10">Confirmer la réservation</span>
-                  <div className="absolute inset-0 h-full w-0 bg-[#c69c38] transition-all duration-500 ease-out group-hover:w-full z-0"></div>
+                <button disabled={isSubmitting} type="submit" className="w-full bg-[#113622] text-white rounded-xl py-4 font-medium text-lg hover:bg-[#1a5133] transition-all relative overflow-hidden group disabled:opacity-80 disabled:cursor-not-allowed">
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} />
+                        Traitement...
+                      </>
+                    ) : (
+                      "Confirmer la réservation"
+                    )}
+                  </span>
+                  {!isSubmitting && <div className="absolute inset-0 h-full w-0 bg-[#c69c38] transition-all duration-500 ease-out group-hover:w-full z-0"></div>}
                 </button>
-                
-                {formStatus && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-green-50 text-green-700 rounded-xl text-center text-sm font-medium">
-                    {formStatus}
-                  </motion.div>
-                )}
               </form>
             </div>
           </motion.div>
