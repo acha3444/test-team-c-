@@ -5,7 +5,6 @@ import Image from "next/image";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Clock, MapPin, Utensils, Phone, Mail, Menu, X, ArrowRight, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { getWeb3FormsKey } from "./actions";
 
 export default function Home() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -39,10 +38,10 @@ export default function Home() {
     };
 
     const promise = async () => {
-      // Get the access key securely via Server Action
-      const key = await getWeb3FormsKey();
+      // Get the access key directly from the browser environment
+      const key = process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY;
 
-      if (!key) throw new Error("Clé d'accès manquante sur le serveur (Vercel)");
+      if (!key) throw new Error("Clé d'accès manquante (NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY)");
 
       // Post directly from the browser to bypass Vercel server blocks
       const response = await fetch("https://api.web3forms.com/submit", {
