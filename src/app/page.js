@@ -37,19 +37,40 @@ export default function Home() {
       email: e.target.email.value,
     };
 
-    const promise = fetch('/api/reservation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
-    }).then(async (res) => {
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || 'Erreur réseau');
-      }
-      return res.json();
-    });
+    const promise = async () => {
+      // Get the access key
+      const keyRes = await fetch('/api/reservation');
+      const { key } = await keyRes.json();
 
-    toast.promise(promise, {
+      if (!key) throw new Error("Clé d'accès manquante sur le serveur");
+
+      // Post directly from the browser to bypass Vercel server blocks
+      const response = await fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          access_key: key,
+          subject: `Nouvelle réservation : ${formData.name} le ${formData.date} à ${formData.time}`,
+          from_name: "La Team C - Site Web",
+          Nom: formData.name,
+          Email_Client: formData.email,
+          Date: formData.date,
+          Heure: formData.time,
+          Couverts: formData.guests,
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok || !data.success) {
+        throw new Error(data.message || "Erreur réseau");
+      }
+      return data;
+    };
+
+    toast.promise(promise(), {
       loading: 'Envoi de votre réservation...',
       success: () => {
         e.target.reset();
