@@ -23,11 +23,36 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const handleReservation = (e) => {
+  const handleReservation = async (e) => {
     e.preventDefault();
-    setFormStatus("Merci ! Votre demande a été reçue. Ce module sera bientôt relié directement à L'Addition.");
+    setFormStatus("Envoi en cours...");
+
+    const formData = {
+      date: e.target.date.value,
+      time: e.target.time.value,
+      guests: e.target.guests.value,
+      name: e.target.name.value,
+      email: e.target.email.value,
+    };
+
+    try {
+      const response = await fetch('/api/reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setFormStatus("Merci ! Votre réservation a été envoyée par email.");
+        e.target.reset();
+      } else {
+        setFormStatus("Une erreur est survenue. Veuillez réessayer.");
+      }
+    } catch (error) {
+      setFormStatus("Erreur de connexion. Veuillez réessayer.");
+    }
+    
     setTimeout(() => setFormStatus(""), 6000);
-    e.target.reset();
   };
 
   const navLinks = [
@@ -416,11 +441,11 @@ export default function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Date</label>
-                    <input type="date" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                    <input name="date" type="date" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Heure</label>
-                    <select required defaultValue="" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all appearance-none">
+                    <select name="time" required defaultValue="" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all appearance-none">
                       <option value="" disabled>Choisir une heure</option>
                       <option value="12:00">12:00</option>
                       <option value="12:30">12:30</option>
@@ -431,7 +456,7 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Couverts</label>
-                    <select required defaultValue="2" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all appearance-none">
+                    <select name="guests" required defaultValue="2" className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all appearance-none">
                       <option value="1">1 Personne</option>
                       <option value="2">2 Personnes</option>
                       <option value="3">3 Personnes</option>
@@ -442,12 +467,12 @@ export default function Home() {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium text-gray-700">Nom</label>
-                    <input type="text" placeholder="Votre nom" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                    <input name="name" type="text" placeholder="Votre nom" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-gray-700">Email</label>
-                  <input type="email" placeholder="votre@email.com" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
+                  <input name="email" type="email" placeholder="votre@email.com" required className="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-[#c69c38] focus:ring-1 focus:ring-[#c69c38] transition-all" />
                 </div>
                 <button type="submit" className="w-full bg-[#113622] text-white rounded-xl py-4 font-medium text-lg hover:bg-[#1a5133] transition-colors relative overflow-hidden group">
                   <span className="relative z-10">Confirmer la réservation</span>
