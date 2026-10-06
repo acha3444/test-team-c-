@@ -362,7 +362,7 @@ export default function Home() {
             viewport={{ once: true }}
             className="mt-16 text-center"
           >
-            <a href="#" className="inline-flex items-center gap-2 text-[#113622] border-b-2 border-[#c69c38] pb-1 font-medium hover:text-[#c69c38] transition-colors group">
+            <a href="#menu" onClick={(e) => { e.preventDefault(); toast("La carte complète arrive bientôt !", { description: "Nous préparons un beau PDF avec tous nos plats."}); }} className="inline-flex items-center gap-2 text-[#113622] border-b-2 border-[#c69c38] pb-1 font-medium hover:text-[#c69c38] transition-colors group cursor-pointer">
               Voir la carte complète
               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
             </a>
